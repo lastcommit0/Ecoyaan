@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import type { CartData } from "@/types";
-import { CheckoutProvider, useCheckoutStore } from "@/store/useCheckoutStore";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 import { StepIndicator } from "@/components/checkout/StepIndicator";
 import { CartView } from "@/components/checkout/CartView";
 import { AddressForm } from "@/components/checkout/AddressForm";
@@ -13,15 +14,19 @@ type CheckoutFlowProps = {
 };
 
 export function CheckoutFlow({ initialCartData }: CheckoutFlowProps) {
+  const initializeCheckout = useCheckoutStore((state) => state.initializeCheckout);
+
+  useEffect(() => {
+    initializeCheckout(initialCartData);
+  }, [initialCartData, initializeCheckout]);
+
   return (
-    <CheckoutProvider initialCartData={initialCartData}>
-      <FlowContent />
-    </CheckoutProvider>
+    <FlowContent />
   );
 }
 
 function FlowContent() {
-  const { step } = useCheckoutStore();
+  const step = useCheckoutStore((state) => state.step);
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 sm:px-6">

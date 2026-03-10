@@ -1,12 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MdOutlineShoppingCart  } from "react-icons/md";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 
-type AppBarProps = {
-  cartCount: number;
-};
+export function AppBar() {
+  const cartCount = useCheckoutStore((state) =>
+    state.cartData.cartItems.reduce((total, item) => total + item.quantity, 0),
+  );
 
-export function AppBar({ cartCount }: AppBarProps) {
   return (
     <header className="border-b border-zinc-200 bg-white">
       <div className="mx-auto flex w-full max-w-[1320px] flex-wrap items-center gap-3 px-4 py-3 lg:flex-nowrap lg:gap-6">
@@ -58,7 +61,9 @@ export function AppBar({ cartCount }: AppBarProps) {
             aria-label="Cart"
             className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-zinc-100"
           >
-            <MdOutlineShoppingCart  className="h-7 w-7 text-emerald-700"/>
+            <Link href="/checkout">
+              <MdOutlineShoppingCart  className="h-7 w-7 text-emerald-700"/>
+            </Link>
 
             <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-700 px-1 text-xs font-semibold text-white">
               {cartCount}
@@ -122,22 +127,6 @@ function HeartIcon({ className }: { className?: string }) {
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-function CartIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M3 4h2l1.4 8h10.9l2-6H7.2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="10" cy="19" r="1.5" fill="currentColor" />
-      <circle cx="17" cy="19" r="1.5" fill="currentColor" />
     </svg>
   );
 }

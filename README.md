@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ecoyaan Checkout Flow
 
-## Getting Started
+A simplified multi-step checkout flow built with Next.js (App Router), React, Tailwind CSS, and Zustand.
 
-First, run the development server:
+## What this project does
+
+The app simulates a checkout journey with four states:
+1. Cart / Order Summary
+2. Shipping Address
+3. Payment Confirmation
+4. Success
+
+It uses server-rendered cart data for initial load, then manages the flow on the client.
+
+## Architecture choices
+
+- **Next.js App Router + SSR data fetch**
+  - `app/checkout/page.tsx` fetches initial cart data on the server using `getCartDataSSR()`.
+  - This satisfies the SSR requirement and ensures the page starts with populated cart data.
+
+- **Global state with Zustand (persisted)**
+  - Store: `store/useCheckoutStore.tsx`
+  - Holds `cartData`, `shippingAddress`, and current `step`.
+  - Uses Zustand `persist` middleware so flow state survives refresh/navigation.
+  - `initializeCheckout(initialCartData)` seeds store once from SSR payload.
+
+- **Reusable, modular UI by step**
+  - `components/checkout/CartView.tsx`
+  - `components/checkout/AddressForm.tsx`
+  - `components/checkout/PaymentView.tsx`
+  - `components/checkout/SuccessView.tsx`
+  - `components/checkout/CheckoutFlow.tsx` controls which step renders.
+
+- **Single source of truth for cart badge**
+  - `components/layout/AppBar.tsx` reads cart quantity from the same Zustand store.
+  - Cart count stays synced with quantity updates.
+
+- **Mock backend/data**
+  - Mock data source: `lib/mockCart.ts`
+  - API route available at `pages/api/cart.ts`
+
+## Run locally
+
+### Prerequisites
+
+- Node.js 18+ (recommended: latest LTS)
+- npm
+
+### Install and start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Landing page: `/`
+- Checkout flow: `/checkout`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Useful scripts
 
-## Learn More
+```bash
+npm run dev    # start dev server
+npm run lint   # run ESLint
+npm run build  # production build
+npm run start  # run production server
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Cart and address state are intentionally persisted in browser storage for assignment behavior.
+- If you want a fresh flow, use the "Start New Checkout" action in the success screen.
